@@ -1,15 +1,19 @@
 """Postgres connection helper.
 
-Reads credentials from environment variables. There is no fallback to
-hardcoded defaults on purpose. The runner refuses to start if the
-required variables aren't set.
+Reads credentials from the local .env file and environment variables.
+There is no fallback to hardcoded defaults on purpose. The runner
+refuses to start if the required variables aren't set.
 """
 
 from __future__ import annotations
 
 import os
+import pathlib
 
 import psycopg
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+ENV_FILE = ROOT / ".env"
 
 REQUIRED_ENV_VARS = (
     "PG_HOST",
@@ -20,7 +24,20 @@ REQUIRED_ENV_VARS = (
 )
 
 
+def _load_env_file(path: pathlib.Path = ENV_FILE) -> None:
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        os.environ.setdefault(name.strip(), value.strip().strip("\"'"))
+
+
 def connection_string() -> str:
+    _load_env_file()
     missing = [name for name in REQUIRED_ENV_VARS if not os.environ.get(name)]
     if missing:
         raise RuntimeError(

@@ -31,6 +31,7 @@ from db import connect
 from steps import STEPS, Step
 
 logger = logging.getLogger("runner")
+BOOTSTRAP_STEP_NAMES = ("create_schemas", "pipeline_metadata_ddl")
 
 
 def _utcnow() -> datetime:
@@ -118,6 +119,14 @@ def _execute_python_step(step: Step) -> int | None:
     return sum(result.values()) if result else None
 
 
+def _bootstrap_metadata(conn: psycopg.Connection) -> None:
+    """Create the schema and metadata tables before recording the run."""
+    steps_by_name = {step.name: step for step in STEPS}
+    for name in BOOTSTRAP_STEP_NAMES:
+        step = steps_by_name[name]
+        _execute_sql_step(conn, step)
+
+
 def run_pipeline() -> int:
     run_id = uuid.uuid4().hex[:12]
     logger.info("pipeline run %s starting", run_id)
@@ -126,6 +135,7 @@ def run_pipeline() -> int:
     pipeline_error: str | None = None
 
     with connect() as conn:
+        _bootstrap_metadata(conn)
         # The bookkeeping connection commits on every metadata write so
         # the step rows survive a step failure. SQL steps run in their
         # own short transactions via conn.transaction().
@@ -194,7 +204,11 @@ def main() -> int:
         level=args.log_level,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
-    return run_pipeline()
+    try:
+        return run_pipeline()
+    except Exception as exc:
+        logger.error("pipeline failed before metadata could be completed: %s", exc)
+        return 1
 
 
 if __name__ == "__main__":

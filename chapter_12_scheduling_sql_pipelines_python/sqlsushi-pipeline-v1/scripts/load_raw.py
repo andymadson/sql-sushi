@@ -35,6 +35,7 @@ def _load_transactions(cur, target_table: str, csv_path: pathlib.Path) -> int:
     The temp table is created LIKE the target so column types and order
     match without us having to spell them out here.
     """
+    cur.execute("DROP TABLE IF EXISTS _stage")
     cur.execute(
         f"""
         CREATE TEMP TABLE _stage (LIKE {target_table} INCLUDING DEFAULTS)
