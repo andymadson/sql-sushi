@@ -72,16 +72,15 @@ jobs:
 
       - name: Run Chapter 14 dbt build
         run: |
-          python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
-          dbt run --project-dir chapter_14_sql_transformation_frameworks/dbt --profiles-dir chapter_14_sql_transformation_frameworks/dbt
-          dbt test --project-dir chapter_14_sql_transformation_frameworks/dbt --profiles-dir chapter_14_sql_transformation_frameworks/dbt
-          python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label dbt
+          python chapter_14_sql_transformation_frameworks/scripts/run_dbt_path.py
 
       - name: Run Chapter 14 SQLMesh build
         run: |
-          python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
-          sqlmesh -p chapter_14_sql_transformation_frameworks/sqlmesh plan --auto-apply --no-prompts
-          python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
+          python chapter_14_sql_transformation_frameworks/scripts/run_sqlmesh_path.py
+
+      - name: Validate Chapter 14 orchestration examples
+        run: |
+          python chapter_14_sql_transformation_frameworks/scripts/validate_orchestration_examples.py
 
       - name: Run Chapter 15 Spark basket pairs
         run: |

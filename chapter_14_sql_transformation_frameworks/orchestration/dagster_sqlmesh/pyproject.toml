@@ -1,0 +1,19 @@
+[project]
+name = "sql-sushi-sqlmesh-dagster"
+version = "0.1.0"
+description = "Dagster reference project for running the SQL-Sushi Chapter 14 SQLMesh path."
+requires-python = ">=3.10"
+dependencies = [
+    "dagster==1.13.9",
+    "dagster-webserver==1.13.9",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.dagster]
+module_name = "sql_sushi_sqlmesh_dagster.definitions"

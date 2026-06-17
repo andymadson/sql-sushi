@@ -29,6 +29,27 @@ models:
       - name: master_item_id
         data_tests:
           - not_null
+  - name: daily_menu_sales
+    description: Daily sales by location and canonical menu item.
+    columns:
+      - name: sales_date
+        data_tests:
+          - not_null
+      - name: location_id
+        data_tests:
+          - not_null
+      - name: location_name
+        data_tests:
+          - not_null
+      - name: metro
+        data_tests:
+          - not_null
+      - name: master_item_id
+        data_tests:
+          - not_null
+      - name: menu_category
+        data_tests:
+          - not_null
   - name: agg_daily_sales_by_location
     description: Daily sales summary by location.
   - name: agg_top_items_30d

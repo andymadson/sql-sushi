@@ -1,0 +1,54 @@
+-- analytics.daily_menu_sales
+--
+-- Chapter 2's first useful business grain: one row per sales date,
+-- location, and standardized menu item. This output is the handoff from
+-- normalized POS line items to menu and location analysis.
+--
+-- gross_sales and net_sales are equal in this first slice because the
+-- synthetic POS exports do not include discount or refund columns yet.
+
+DROP TABLE IF EXISTS analytics.daily_menu_sales;
+
+CREATE TABLE analytics.daily_menu_sales AS
+WITH daily AS (
+    SELECT
+        CAST(f.transaction_ts AS DATE)        AS sales_date,
+        f.location_id,
+        f.master_item_id,
+        COUNT(*)                             AS line_items,
+        COUNT(DISTINCT f.transaction_ts)     AS approx_orders,
+        SUM(f.quantity)                      AS units_sold,
+        CAST(SUM(f.amount) AS DECIMAL(12,2)) AS gross_sales,
+        CAST(0.00 AS DECIMAL(12,2))          AS discount_amount,
+        CAST(SUM(f.amount) AS DECIMAL(12,2)) AS net_sales,
+        COUNT(DISTINCT f.source_pos)         AS source_system_count
+    FROM analytics.fact_sales AS f
+    GROUP BY
+        CAST(f.transaction_ts AS DATE),
+        f.location_id,
+        f.master_item_id
+)
+SELECT
+    d.sales_date,
+    d.location_id,
+    l.location_name,
+    l.metro,
+    d.master_item_id,
+    mi.category AS menu_category,
+    mi.base_price_usd,
+    d.line_items,
+    d.approx_orders,
+    d.units_sold,
+    d.gross_sales,
+    d.discount_amount,
+    d.net_sales,
+    d.source_system_count
+FROM daily AS d
+INNER JOIN raw.locations AS l
+    ON l.location_id = d.location_id
+INNER JOIN raw.master_items AS mi
+    ON mi.master_item_id = d.master_item_id
+ORDER BY d.sales_date, d.location_id, d.master_item_id;
+
+CREATE UNIQUE INDEX ux_daily_menu_sales_key
+    ON analytics.daily_menu_sales (sales_date, location_id, master_item_id);

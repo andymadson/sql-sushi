@@ -5,8 +5,8 @@
 --           to the source shape on purpose so reloads stay easy.
 -- staging   Cleaned, typed, unified data. One row per real POS line item,
 --           same columns regardless of POS.
--- analytics Star schema. fact_sales plus the aggregate marts the analysts
---           query directly.
+-- analytics fact_sales plus the daily menu sales grain and aggregate marts
+--           the analysts query directly.
 -- pipeline  Metadata about the runner itself: what ran, when, how long,
 --           how many rows moved.
 

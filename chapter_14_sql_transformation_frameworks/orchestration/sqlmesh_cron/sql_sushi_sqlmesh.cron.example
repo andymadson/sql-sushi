@@ -1,0 +1,1 @@
+15 2 * * * cd /path/to/sql-sushi && .venv/bin/python chapter_14_sql_transformation_frameworks/scripts/run_sqlmesh_path.py >> chapter_14_sql_transformation_frameworks/logs/sqlmesh-cron.log 2>&1
