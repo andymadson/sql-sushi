@@ -3,7 +3,7 @@
 Seeded with 42. Same seed, same data, every time. Writes three CSVs:
   data/clover_transactions.csv  -- amounts in cents
   data/square_transactions.csv  -- amounts in dollars
-  data/toast_transactions.csv   -- amounts in dollars, TIMESTAMPTZ
+  data/toast_transactions.csv   -- amounts in dollars, UTC ISO timestamp
 
 Date range is April 2026, baked into PERIOD_START and PERIOD_END below.
 The 30-day window is intentional. The chapter explains the scaling

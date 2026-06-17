@@ -12,8 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint Python and parse SQL
+  chapter-12:
+    name: Chapter 12 DuckDB baseline
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -24,35 +24,38 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install lint tools
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff==0.15.13 sqlglot==30.6.0
+          python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt
 
       - name: Lint Python with ruff
-        shell: bash
-        run: |
-          if compgen -G "chapter_*" > /dev/null; then
-            ruff check chapter_*/
-          else
-            echo "No chapter_* directories yet; skipping ruff check."
-          fi
+        run: ruff check chapter_12_scheduling_sql_pipelines_python
 
-      - name: Parse SQL files with sqlglot (Postgres dialect)
-        shell: bash
+      - name: Parse SQL files with sqlglot (DuckDB dialect)
         run: |
-          set -euo pipefail
-          mapfile -d '' files < <(find . -name "*.sql" \
-            -not -path "./.venv/*" -not -path "*/node_modules/*" -print0)
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "No SQL files found; skipping."
-            exit 0
-          fi
-          rc=0
-          for f in "${files[@]}"; do
-            if ! python3 -c "import sys, sqlglot; sqlglot.parse(open(sys.argv[1]).read(), dialect='postgres')" "$f"; then
-              echo "::error file=$f::sqlglot failed to parse $f"
-              rc=1
-            fi
-          done
-          exit "$rc"
+          python - <<'PY'
+          import pathlib
+          import sys
+
+          import sqlglot
+
+          failures = []
+          for path in pathlib.Path("chapter_12_scheduling_sql_pipelines_python/sql").rglob("*.sql"):
+              try:
+                  sqlglot.parse(path.read_text(encoding="utf-8"), dialect="duckdb")
+              except Exception as exc:
+                  failures.append((path, exc))
+
+          for path, exc in failures:
+              print(f"::error file={path}::sqlglot failed to parse {path}: {exc}")
+
+          sys.exit(1 if failures else 0)
+          PY
+
+      - name: Run Chapter 12 end to end
+        run: |
+          python chapter_12_scheduling_sql_pipelines_python/scripts/build_seed_data.py
+          python chapter_12_scheduling_sql_pipelines_python/scripts/generate_data.py
+          python chapter_12_scheduling_sql_pipelines_python/scripts/runner.py
+          python chapter_12_scheduling_sql_pipelines_python/scripts/verify_counts.py

@@ -24,7 +24,8 @@ FROM staging.stg_pos_transactions AS s
 WHERE s.master_item_id IS NOT NULL
 ORDER BY s.transaction_ts, s.transaction_id;
 
-ALTER TABLE analytics.fact_sales ADD PRIMARY KEY (transaction_id);
+CREATE UNIQUE INDEX ux_fact_sales_transaction_id
+    ON analytics.fact_sales (transaction_id);
 
 CREATE INDEX ix_fact_sales_loc_ts
     ON analytics.fact_sales (location_id, transaction_ts);

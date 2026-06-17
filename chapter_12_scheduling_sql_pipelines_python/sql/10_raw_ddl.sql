@@ -7,7 +7,7 @@
 CREATE TABLE IF NOT EXISTS raw.master_items (
     master_item_id   TEXT          PRIMARY KEY,
     category         TEXT          NOT NULL,
-    base_price_usd   NUMERIC(10,2) NOT NULL,
+    base_price_usd   DECIMAL(10,2) NOT NULL,
     clover_name      TEXT          NOT NULL,
     square_name      TEXT          NOT NULL,
     toast_name       TEXT          NOT NULL
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS raw.clover_transactions (
     payment_method   TEXT        NOT NULL,
     txn_date         DATE        NOT NULL,
     txn_time         TIME        NOT NULL,
-    loaded_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+    loaded_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Square uses NUMERIC dollars and a single naive TIMESTAMP. We assume
@@ -41,23 +41,24 @@ CREATE TABLE IF NOT EXISTS raw.square_transactions (
     transaction_id   TEXT          PRIMARY KEY,
     location_id      INTEGER       NOT NULL,
     item_name        TEXT          NOT NULL,
-    amount           NUMERIC(10,2) NOT NULL,
+    amount           DECIMAL(10,2) NOT NULL,
     quantity         INTEGER       NOT NULL,
     payment_method   TEXT          NOT NULL,
     transaction_at   TIMESTAMP     NOT NULL,
-    loaded_at        TIMESTAMPTZ   NOT NULL DEFAULT now()
+    loaded_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Toast already gives us TIMESTAMPTZ. Easiest of the three.
+-- Toast already gives us an ISO timestamp with a UTC offset. We land it
+-- as TIMESTAMP because this chapter keeps the local DuckDB file in UTC.
 CREATE TABLE IF NOT EXISTS raw.toast_transactions (
     transaction_id   TEXT          PRIMARY KEY,
     location_id      INTEGER       NOT NULL,
     item_name        TEXT          NOT NULL,
-    amount           NUMERIC(10,2) NOT NULL,
+    amount           DECIMAL(10,2) NOT NULL,
     quantity         INTEGER       NOT NULL,
     payment_method   TEXT          NOT NULL,
-    transaction_ts   TIMESTAMPTZ   NOT NULL,
-    loaded_at        TIMESTAMPTZ   NOT NULL DEFAULT now()
+    transaction_ts   TIMESTAMP     NOT NULL,
+    loaded_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS ix_clover_loc_date

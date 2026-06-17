@@ -12,9 +12,8 @@
 -- amount_cents gets divided by 100. Square and Toast already arrive in
 -- dollars and pass through.
 --
--- Timestamps: every transaction becomes TIMESTAMPTZ. Square's naive
--- TIMESTAMP gets the UTC zone attached, since the source contract says
--- Square always exports in UTC.
+-- Timestamps: every transaction becomes a UTC TIMESTAMP. Square's naive
+-- TIMESTAMP already exports in UTC according to the source contract.
 
 DROP TABLE IF EXISTS staging.stg_pos_transactions;
 
@@ -22,13 +21,16 @@ CREATE TABLE staging.stg_pos_transactions AS
 WITH clover AS (
     SELECT
         c.transaction_id,
-        'clover'::TEXT AS source_pos,
+        CAST('clover' AS TEXT) AS source_pos,
         c.location_id,
         c.item_name AS source_item_name,
         mi.master_item_id,
         c.quantity,
-        (c.amount_cents::NUMERIC / 100)::NUMERIC(10,2) AS amount,
-        (c.txn_date + c.txn_time) AT TIME ZONE 'UTC' AS transaction_ts,
+        CAST(CAST(c.amount_cents AS DECIMAL(10,2)) / 100 AS DECIMAL(10,2)) AS amount,
+        CAST(
+            CAST(c.txn_date AS VARCHAR) || ' ' || CAST(c.txn_time AS VARCHAR)
+            AS TIMESTAMP
+        ) AS transaction_ts,
         c.payment_method
     FROM raw.clover_transactions AS c
     LEFT JOIN raw.master_items AS mi
@@ -37,13 +39,13 @@ WITH clover AS (
 square AS (
     SELECT
         s.transaction_id,
-        'square'::TEXT AS source_pos,
+        CAST('square' AS TEXT) AS source_pos,
         s.location_id,
         s.item_name AS source_item_name,
         mi.master_item_id,
         s.quantity,
         s.amount,
-        s.transaction_at AT TIME ZONE 'UTC' AS transaction_ts,
+        s.transaction_at AS transaction_ts,
         s.payment_method
     FROM raw.square_transactions AS s
     LEFT JOIN raw.master_items AS mi
@@ -52,7 +54,7 @@ square AS (
 toast AS (
     SELECT
         t.transaction_id,
-        'toast'::TEXT AS source_pos,
+        CAST('toast' AS TEXT) AS source_pos,
         t.location_id,
         t.item_name AS source_item_name,
         mi.master_item_id,
@@ -83,7 +85,8 @@ FROM (
 ) AS u
 ORDER BY transaction_ts, transaction_id;
 
-ALTER TABLE staging.stg_pos_transactions ADD PRIMARY KEY (transaction_id);
+CREATE UNIQUE INDEX ux_stg_pos_tx_transaction_id
+    ON staging.stg_pos_transactions (transaction_id);
 
 CREATE INDEX ix_stg_pos_tx_loc_ts
     ON staging.stg_pos_transactions (location_id, transaction_ts);

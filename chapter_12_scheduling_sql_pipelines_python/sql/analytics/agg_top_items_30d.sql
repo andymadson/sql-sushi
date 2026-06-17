@@ -27,11 +27,12 @@ in_window AS (
 SELECT
     master_item_id,
     SUM(quantity)              AS units_sold,
-    SUM(amount)::NUMERIC(12,2) AS revenue,
+    CAST(SUM(amount) AS DECIMAL(12,2)) AS revenue,
     RANK() OVER (ORDER BY SUM(amount)    DESC) AS rank_by_revenue,
     RANK() OVER (ORDER BY SUM(quantity)  DESC) AS rank_by_units
 FROM in_window
 GROUP BY master_item_id
 ORDER BY rank_by_revenue;
 
-ALTER TABLE analytics.agg_top_items_30d ADD PRIMARY KEY (master_item_id);
+CREATE UNIQUE INDEX ux_agg_top_items_30d_master_item
+    ON analytics.agg_top_items_30d (master_item_id);

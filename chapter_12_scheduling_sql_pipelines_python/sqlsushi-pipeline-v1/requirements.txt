@@ -1,3 +1,0 @@
-# Pinned versions for reproducibility. Verified against PyPI on
-# 2026-05-20. Bump on a deliberate schedule, not on a whim.
-psycopg[binary]==3.3.4

@@ -13,16 +13,16 @@ DROP TABLE IF EXISTS analytics.agg_daily_sales_by_location;
 CREATE TABLE analytics.agg_daily_sales_by_location AS
 SELECT
     f.location_id,
-    (f.transaction_ts AT TIME ZONE 'UTC')::DATE AS sales_date,
+    CAST(f.transaction_ts AS DATE)       AS sales_date,
     COUNT(*)                            AS line_items,
     COUNT(DISTINCT f.transaction_ts)    AS approx_orders,
     SUM(f.quantity)                     AS units_sold,
-    SUM(f.amount)::NUMERIC(12,2)        AS revenue
+    CAST(SUM(f.amount) AS DECIMAL(12,2)) AS revenue
 FROM analytics.fact_sales AS f
 GROUP BY
     f.location_id,
-    (f.transaction_ts AT TIME ZONE 'UTC')::DATE
+    CAST(f.transaction_ts AS DATE)
 ORDER BY sales_date, location_id;
 
-ALTER TABLE analytics.agg_daily_sales_by_location
-    ADD PRIMARY KEY (location_id, sales_date);
+CREATE UNIQUE INDEX ux_agg_daily_sales_by_location_key
+    ON analytics.agg_daily_sales_by_location (location_id, sales_date);
