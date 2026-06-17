@@ -36,7 +36,7 @@ Each chapter directory is self-contained: it has its own README, pinned runtime 
 | 10 | Observability and Monitoring | _conceptual, no repo code_ |
 | 11 | Scalability and Performance | _conceptual, no repo code_ |
 | 12 | Scheduling SQL Pipelines with Python | [`chapter_12_scheduling_sql_pipelines_python/`](chapter_12_scheduling_sql_pipelines_python/) |
-| 13 | Workflow Orchestration | _coming_ |
+| 13 | Workflow Orchestration | [`chapter_13_workflow_orchestration/`](chapter_13_workflow_orchestration/) |
 | 14 | SQL-Based Transformation Frameworks | _coming_ |
 | 15 | Beyond SQL | _coming_ |
 | 16 | Real-Time Data Transformation | _coming_ |

@@ -1,0 +1,5 @@
+# Example CRON entry for Chapter 13.
+# Replace /path/to/sql-sushi with the absolute path to your checkout.
+#
+# Run every day at 02:15 local time and append job output to the Chapter 13 log.
+15 2 * * * cd /path/to/sql-sushi && .venv/bin/python chapter_13_workflow_orchestration/scripts/run_scheduled_pipeline.py --log-file chapter_13_workflow_orchestration/logs/nightly.log --quiet
