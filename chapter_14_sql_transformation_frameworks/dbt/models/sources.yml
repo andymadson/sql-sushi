@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: master_items
+      - name: locations
+      - name: clover_transactions
+      - name: square_transactions
+      - name: toast_transactions
+
+models:
+  - name: stg_pos_transactions
+    description: Unified POS transaction lines from Clover, Square, and Toast.
+    columns:
+      - name: transaction_id
+        data_tests:
+          - unique
+          - not_null
+      - name: master_item_id
+  - name: fact_sales
+    description: One analytics-ready row per matched POS transaction line.
+    columns:
+      - name: transaction_id
+        data_tests:
+          - unique
+          - not_null
+      - name: master_item_id
+        data_tests:
+          - not_null
+  - name: agg_daily_sales_by_location
+    description: Daily sales summary by location.
+  - name: agg_top_items_30d
+    description: Thirty-day top-item summary measured from the latest fact timestamp.

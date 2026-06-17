@@ -1,0 +1,21 @@
+name: sql_sushi_chapter_14
+version: "1.0"
+config-version: 2
+
+profile: sql_sushi_chapter_14
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - target
+  - dbt_packages
+
+models:
+  sql_sushi_chapter_14:
+    staging:
+      +schema: staging
+      +materialized: table
+    analytics:
+      +schema: analytics
+      +materialized: table
