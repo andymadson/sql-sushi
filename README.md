@@ -11,8 +11,8 @@ Each runnable chapter has one top-level directory. The folder names below are th
 ```text
 sql-sushi/
 |-- chapter_12_scheduling_sql_pipelines_python/
-|-- chapter_13_workflow_orchestration/          (coming)
-|-- chapter_14_sql_transformation_frameworks/   (coming)
+|-- chapter_13_workflow_orchestration/
+|-- chapter_14_sql_transformation_frameworks/
 |-- chapter_15_beyond_sql_spark/                (coming)
 |-- chapter_16_real_time_data_transformation/   (coming)
 `-- chapter_17_end_to_end_sqlmesh_cron/         (coming)
@@ -37,7 +37,7 @@ Each chapter directory is self-contained: it has its own README, pinned runtime 
 | 11 | Scalability and Performance | _conceptual, no repo code_ |
 | 12 | Scheduling SQL Pipelines with Python | [`chapter_12_scheduling_sql_pipelines_python/`](chapter_12_scheduling_sql_pipelines_python/) |
 | 13 | Workflow Orchestration | [`chapter_13_workflow_orchestration/`](chapter_13_workflow_orchestration/) |
-| 14 | SQL-Based Transformation Frameworks | _coming_ |
+| 14 | SQL-Based Transformation Frameworks | [`chapter_14_sql_transformation_frameworks/`](chapter_14_sql_transformation_frameworks/) |
 | 15 | Beyond SQL | _coming_ |
 | 16 | Real-Time Data Transformation | _coming_ |
 | 17 | End-to-End Case Study | _coming_ |
@@ -95,6 +95,21 @@ A clean seeded run with `seed=42` produces:
 | `analytics.agg_top_items_30d` | 30 |
 
 `chapter_12_scheduling_sql_pipelines_python/expected_counts.json` is the machine-checkable source for these counts.
+
+## Quick Start: Chapter 14
+
+Chapter 14 uses the same Chapter 12 raw DuckDB data and rebuilds the transformed tables with dbt Core and SQLMesh.
+
+```bash
+python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt -r chapter_14_sql_transformation_frameworks/requirements.txt
+python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
+dbt run --project-dir chapter_14_sql_transformation_frameworks/dbt --profiles-dir chapter_14_sql_transformation_frameworks/dbt
+dbt test --project-dir chapter_14_sql_transformation_frameworks/dbt --profiles-dir chapter_14_sql_transformation_frameworks/dbt
+python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label dbt
+python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
+sqlmesh -p chapter_14_sql_transformation_frameworks/sqlmesh plan --auto-apply --no-prompts
+python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
+```
 
 ## Contributing
 

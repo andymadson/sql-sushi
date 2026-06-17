@@ -1,0 +1,8 @@
+sql_sushi_chapter_14:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: chapter_12_scheduling_sql_pipelines_python/data/sqlsushi.duckdb
+      schema: main
+      threads: 1

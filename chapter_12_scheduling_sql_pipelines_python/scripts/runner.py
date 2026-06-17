@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import sys
 import time
 import uuid
@@ -32,6 +33,11 @@ from steps import STEPS, Step
 
 logger = logging.getLogger("runner")
 BOOTSTRAP_STEP_NAMES = ("create_schemas", "pipeline_metadata_ddl")
+DROP_TABLE_RE = re.compile(
+    r"^\s*DROP\s+TABLE\s+IF\s+EXISTS\s+"
+    r"([A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*)\s*;",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def _utcnow() -> datetime:
@@ -123,10 +129,28 @@ def _execute_sql_step(conn: duckdb.DuckDBPyConnection, step: Step) -> int | None
     """Execute a SQL file and return the target row count when configured."""
     assert step.sql_file is not None
     sql_text = step.sql_file.read_text(encoding="utf-8")
+    _drop_conflicting_views(conn, sql_text)
     conn.execute(sql_text)
     if step.row_count_relation:
         return _relation_count(conn, step.row_count_relation)
     return None
+
+
+def _drop_conflicting_views(conn: duckdb.DuckDBPyConnection, sql_text: str) -> None:
+    """Drop same-name views before SQL files refresh their target tables."""
+    for relation in DROP_TABLE_RE.findall(sql_text):
+        schema_name, table_name = relation.split(".", maxsplit=1)
+        existing = conn.execute(
+            """
+            SELECT table_type
+              FROM information_schema.tables
+             WHERE table_schema = ?
+               AND table_name = ?
+            """,
+            [schema_name, table_name],
+        ).fetchone()
+        if existing and str(existing[0]).upper() == "VIEW":
+            conn.execute(f'DROP VIEW "{schema_name}"."{table_name}"')
 
 
 def _execute_python_step(conn: duckdb.DuckDBPyConnection, step: Step) -> int | None:

@@ -41,3 +41,13 @@ chapter_*/data/*.duckdb.wal
 
 # Generated chapter logs
 chapter_*/logs/*.log
+logs/
+
+# Generated dbt and SQLMesh artifacts
+chapter_*/dbt/.user.yml
+chapter_*/dbt/logs/
+chapter_*/dbt/target/
+chapter_*/sqlmesh/.cache/
+chapter_*/sqlmesh/.sqlmesh/
+chapter_*/sqlmesh/logs/
+tmp_sqlmesh_init_check/
