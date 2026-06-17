@@ -1,0 +1,24 @@
+{
+  "csv_rows": {
+    "data/master_items.csv": 30,
+    "data/locations.csv": 6,
+    "data/clover_transactions.csv": 18904,
+    "data/square_transactions.csv": 18211,
+    "data/toast_transactions.csv": 18541
+  },
+  "relations": {
+    "raw.master_items": 30,
+    "raw.locations": 6,
+    "raw.clover_transactions": 18904,
+    "raw.square_transactions": 18211,
+    "raw.toast_transactions": 18541,
+    "staging.stg_pos_transactions": 55656,
+    "analytics.fact_sales": 55656,
+    "analytics.agg_daily_sales_by_location": 180,
+    "analytics.agg_top_items_30d": 30
+  },
+  "pipeline": {
+    "latest_run_status": "success",
+    "latest_run_step_count": 8
+  }
+}

@@ -29,7 +29,12 @@ desktop.ini
 *.swo
 *~
 
-# Docker volume data leaks (in case anyone runs containers with bind mounts)
+# Local database artifacts
 pgdata/
 *.dump
 *.dmp
+
+# Generated chapter data
+chapter_*/data/*.csv
+chapter_*/data/*.duckdb
+chapter_*/data/*.duckdb.wal

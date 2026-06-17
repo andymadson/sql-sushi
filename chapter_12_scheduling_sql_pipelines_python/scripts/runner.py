@@ -25,7 +25,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 
-import psycopg
+import duckdb
 
 from db import connect
 from steps import STEPS, Step
@@ -35,96 +35,114 @@ BOOTSTRAP_STEP_NAMES = ("create_schemas", "pipeline_metadata_ddl")
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-def _record_pipeline_start(cur: psycopg.Cursor, run_id: str) -> None:
-    cur.execute(
+def _record_pipeline_start(conn: duckdb.DuckDBPyConnection, run_id: str) -> None:
+    conn.execute(
         """
         INSERT INTO pipeline.pipeline_runs (run_id, started_at, status)
-        VALUES (%s, %s, 'running')
+        VALUES (?, ?, 'running')
         """,
-        (run_id, _utcnow()),
+        [run_id, _utcnow()],
     )
 
 
 def _record_pipeline_end(
-    cur: psycopg.Cursor, run_id: str, status: str, error_text: str | None = None
+    conn: duckdb.DuckDBPyConnection,
+    run_id: str,
+    status: str,
+    error_text: str | None = None,
 ) -> None:
-    cur.execute(
+    conn.execute(
         """
         UPDATE pipeline.pipeline_runs
-           SET completed_at = %s,
-               status       = %s,
-               error_text   = %s
-         WHERE run_id = %s
+           SET completed_at = ?,
+               status       = ?,
+               error_text   = ?
+         WHERE run_id = ?
         """,
-        (_utcnow(), status, error_text, run_id),
+        [_utcnow(), status, error_text, run_id],
     )
 
 
 def _record_step_start(
-    cur: psycopg.Cursor, run_id: str, step: Step, order_index: int
+    conn: duckdb.DuckDBPyConnection, run_id: str, step: Step, order_index: int
 ) -> None:
-    cur.execute(
+    conn.execute(
         """
         INSERT INTO pipeline.step_runs
             (run_id, step_name, step_order, started_at, status)
-        VALUES (%s, %s, %s, %s, 'running')
+        VALUES (?, ?, ?, ?, 'running')
         """,
-        (run_id, step.name, order_index, _utcnow()),
+        [run_id, step.name, order_index, _utcnow()],
     )
 
 
 def _record_step_end(
-    cur: psycopg.Cursor,
+    conn: duckdb.DuckDBPyConnection,
     run_id: str,
     step: Step,
     status: str,
     rows_affected: int | None,
     error_text: str | None,
 ) -> None:
-    cur.execute(
+    conn.execute(
         """
         UPDATE pipeline.step_runs
-           SET completed_at  = %s,
-               status        = %s,
-               rows_affected = %s,
-               error_text    = %s
-         WHERE run_id = %s
-           AND step_name = %s
+           SET completed_at  = ?,
+               status        = ?,
+               rows_affected = ?,
+               error_text    = ?
+         WHERE run_id = ?
+           AND step_name = ?
         """,
-        (_utcnow(), status, rows_affected, error_text, run_id, step.name),
+        [_utcnow(), status, rows_affected, error_text, run_id, step.name],
     )
 
 
-def _execute_sql_step(conn: psycopg.Connection, step: Step) -> int | None:
-    """Execute a SQL file in its own transaction. Returns the rowcount of
-    the last statement, which the runner uses purely as a sanity signal
-    for the operator. Some statements report -1; treat that as None."""
+def _relation_count(conn: duckdb.DuckDBPyConnection, relation: str) -> int:
+    return int(conn.execute(f"SELECT COUNT(*) FROM {relation}").fetchone()[0])
+
+
+def _in_transaction(conn: duckdb.DuckDBPyConnection, step: Step) -> int | None:
+    conn.execute("BEGIN")
+    try:
+        if step.sql_file is not None:
+            rows = _execute_sql_step(conn, step)
+        else:
+            rows = _execute_python_step(conn, step)
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    conn.execute("COMMIT")
+    return rows
+
+
+def _execute_sql_step(conn: duckdb.DuckDBPyConnection, step: Step) -> int | None:
+    """Execute a SQL file and return the target row count when configured."""
     assert step.sql_file is not None
     sql_text = step.sql_file.read_text(encoding="utf-8")
-    with conn.transaction():
-        with conn.cursor() as cur:
-            cur.execute(sql_text)
-            rowcount = cur.rowcount
-    return rowcount if rowcount != -1 else None
+    conn.execute(sql_text)
+    if step.row_count_relation:
+        return _relation_count(conn, step.row_count_relation)
+    return None
 
 
-def _execute_python_step(step: Step) -> int | None:
+def _execute_python_step(conn: duckdb.DuckDBPyConnection, step: Step) -> int | None:
     """Run a Python step. The callable returns a mapping of table to row
     count; we record the sum as a coarse 'rows touched' signal."""
     assert step.python_callable is not None
-    result = step.python_callable() or {}
+    result = step.python_callable(conn) or {}
     return sum(result.values()) if result else None
 
 
-def _bootstrap_metadata(conn: psycopg.Connection) -> None:
+def _bootstrap_metadata(conn: duckdb.DuckDBPyConnection) -> None:
     """Create the schema and metadata tables before recording the run."""
     steps_by_name = {step.name: step for step in STEPS}
     for name in BOOTSTRAP_STEP_NAMES:
         step = steps_by_name[name]
-        _execute_sql_step(conn, step)
+        _in_transaction(conn, step)
 
 
 def run_pipeline() -> int:
@@ -134,35 +152,26 @@ def run_pipeline() -> int:
     pipeline_failed = False
     pipeline_error: str | None = None
 
-    with connect() as conn:
+    conn = connect()
+    try:
         _bootstrap_metadata(conn)
-        # The bookkeeping connection commits on every metadata write so
-        # the step rows survive a step failure. SQL steps run in their
-        # own short transactions via conn.transaction().
-        conn.autocommit = True
-        with conn.cursor() as cur:
-            _record_pipeline_start(cur, run_id)
+        _record_pipeline_start(conn, run_id)
 
         for order_index, step in enumerate(STEPS, start=1):
-            with conn.cursor() as cur:
-                _record_step_start(cur, run_id, step, order_index)
+            _record_step_start(conn, run_id, step, order_index)
 
             t0 = time.perf_counter()
             try:
-                if step.sql_file is not None:
-                    rows = _execute_sql_step(conn, step)
-                else:
-                    rows = _execute_python_step(step)
+                rows = _in_transaction(conn, step)
             except Exception as exc:
                 elapsed = time.perf_counter() - t0
                 logger.exception("step %s failed after %.2fs", step.name, elapsed)
-                with conn.cursor() as cur:
-                    _record_step_end(
-                        cur, run_id, step,
-                        status="failed",
-                        rows_affected=None,
-                        error_text=str(exc),
-                    )
+                _record_step_end(
+                    conn, run_id, step,
+                    status="failed",
+                    rows_affected=None,
+                    error_text=str(exc),
+                )
                 pipeline_failed = True
                 pipeline_error = f"{step.name}: {exc}"
                 break
@@ -170,20 +179,20 @@ def run_pipeline() -> int:
             elapsed = time.perf_counter() - t0
             logger.info("step %s completed in %.2fs (rows=%s)",
                         step.name, elapsed, rows)
-            with conn.cursor() as cur:
-                _record_step_end(
-                    cur, run_id, step,
-                    status="success",
-                    rows_affected=rows,
-                    error_text=None,
-                )
-
-        with conn.cursor() as cur:
-            _record_pipeline_end(
-                cur, run_id,
-                status="failed" if pipeline_failed else "success",
-                error_text=pipeline_error,
+            _record_step_end(
+                conn, run_id, step,
+                status="success",
+                rows_affected=rows,
+                error_text=None,
             )
+
+        _record_pipeline_end(
+            conn, run_id,
+            status="failed" if pipeline_failed else "success",
+            error_text=pipeline_error,
+        )
+    finally:
+        conn.close()
 
     if pipeline_failed:
         logger.error("pipeline run %s FAILED: %s", run_id, pipeline_error)

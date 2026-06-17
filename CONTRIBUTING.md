@@ -19,31 +19,32 @@ The code in each chapter is meant to teach a specific point clearly. The right k
 - **Doesn't break the chapter's expected output.** Each chapter's README has a section listing the row counts, file sizes, or query results readers should see after running the code. If your change alters those numbers, the change is probably out of scope.
 - **Stays in the chapter's voice.** This is book code, not production code. Optimizations and abstractions that obscure what the code is teaching are usually the wrong direction.
 
-The wrong kind of pull request: rewriting Chapter 12's runner to use Airflow because Airflow is "better." Chapter 13 covers that already. Each version of the pipeline (`sqlsushi-pipeline-v1`, `v2`, `v3`, `v4`) is deliberately at a specific level of sophistication.
+The wrong kind of pull request: rewriting Chapter 12's runner to use Airflow because Airflow is "better." Chapter 13 covers orchestration. Chapter 12 is deliberately the small local DuckDB runner that everything else builds from.
 
 ## Development setup
 
-Most chapters use Python 3.12+, Docker, and a pinned set of libraries declared in each chapter's `requirements.txt`. Set up each chapter independently:
+Runnable chapters use Python 3.12 and pinned dependencies. Chapter 12 doesn't require Docker or an external database. From the repo root:
 
 ```bash
-cd chapter_12_scheduling_sql_pipelines_python/sqlsushi-pipeline-v1
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+python -m venv .venv
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt
 ```
 
 ## Running checks locally
 
-The CI workflow runs `ruff check` against every chapter's Python code and parses every `.sql` file with `sqlglot` to catch syntax errors. Before opening a PR, please run both locally from the repo root:
+The CI workflow runs Ruff, parses Chapter 12 SQL with SQLGlot's DuckDB dialect, and runs the Chapter 12 pipeline end to end. Before opening a PR, run the same checks locally from the repo root:
 
 ```bash
-pip install ruff sqlglot
-ruff check chapter_*/
-find chapter_* -name "*.sql" -exec python3 -c \
-  "import sys, sqlglot; sqlglot.parse(open(sys.argv[1]).read(), dialect='postgres')" {} \;
+python -m ruff check chapter_12_scheduling_sql_pipelines_python
+python -c 'import pathlib, sqlglot; [sqlglot.parse(path.read_text(encoding="utf-8"), dialect="duckdb") for path in pathlib.Path("chapter_12_scheduling_sql_pipelines_python/sql").rglob("*.sql")]'
+python chapter_12_scheduling_sql_pipelines_python/scripts/build_seed_data.py
+python chapter_12_scheduling_sql_pipelines_python/scripts/generate_data.py
+python chapter_12_scheduling_sql_pipelines_python/scripts/runner.py
+python chapter_12_scheduling_sql_pipelines_python/scripts/verify_counts.py
 ```
 
-If you're touching a chapter's runnable pipeline, run it end to end and confirm the expected outputs documented in that chapter's README still match.
+Chapter 12 writes generated CSV files and `data/sqlsushi.duckdb` under `chapter_12_scheduling_sql_pipelines_python/data/`. Those files are local artifacts. Don't commit them.
 
 ## What this repo isn't
 

@@ -6,8 +6,8 @@
 
 CREATE TABLE IF NOT EXISTS pipeline.pipeline_runs (
     run_id        TEXT        PRIMARY KEY,
-    started_at    TIMESTAMPTZ NOT NULL,
-    completed_at  TIMESTAMPTZ,
+    started_at    TIMESTAMP   NOT NULL,
+    completed_at  TIMESTAMP,
     status        TEXT        NOT NULL CHECK (status IN ('running', 'success', 'failed')),
     error_text    TEXT
 );
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS pipeline.step_runs (
     run_id         TEXT        NOT NULL REFERENCES pipeline.pipeline_runs (run_id),
     step_name      TEXT        NOT NULL,
     step_order     INTEGER     NOT NULL,
-    started_at     TIMESTAMPTZ NOT NULL,
-    completed_at   TIMESTAMPTZ,
+    started_at     TIMESTAMP   NOT NULL,
+    completed_at   TIMESTAMP,
     status         TEXT        NOT NULL CHECK (status IN ('running', 'success', 'failed', 'skipped')),
     rows_affected  BIGINT,
     error_text     TEXT,
@@ -25,4 +25,4 @@ CREATE TABLE IF NOT EXISTS pipeline.step_runs (
 );
 
 CREATE INDEX IF NOT EXISTS ix_step_runs_started_at
-    ON pipeline.step_runs (started_at DESC);
+    ON pipeline.step_runs (started_at);
