@@ -81,27 +81,33 @@ python -m venv .venv
 Mac/Linux:
 
 ```bash
-.venv/bin/python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
+.venv/bin/python \
+  chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
 .venv/bin/dbt run \
   --project-dir chapter_14_sql_transformation_frameworks/dbt \
   --profiles-dir chapter_14_sql_transformation_frameworks/dbt
 .venv/bin/dbt test \
   --project-dir chapter_14_sql_transformation_frameworks/dbt \
   --profiles-dir chapter_14_sql_transformation_frameworks/dbt
-.venv/bin/python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label dbt
+.venv/bin/python \
+  chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py \
+  --label dbt
 ```
 
 Windows PowerShell:
 
 ```powershell
-.\.venv\Scripts\python.exe chapter_14_sql_transformation_frameworks\scripts\prepare_raw_data.py
+.\.venv\Scripts\python.exe `
+  chapter_14_sql_transformation_frameworks\scripts\prepare_raw_data.py
 .\.venv\Scripts\dbt.exe run `
   --project-dir chapter_14_sql_transformation_frameworks\dbt `
   --profiles-dir chapter_14_sql_transformation_frameworks\dbt
 .\.venv\Scripts\dbt.exe test `
   --project-dir chapter_14_sql_transformation_frameworks\dbt `
   --profiles-dir chapter_14_sql_transformation_frameworks\dbt
-.\.venv\Scripts\python.exe chapter_14_sql_transformation_frameworks\scripts\verify_framework_counts.py --label dbt
+.\.venv\Scripts\python.exe `
+  chapter_14_sql_transformation_frameworks\scripts\verify_framework_counts.py `
+  --label dbt
 ```
 
 ## Run the SQLMesh Version
@@ -111,21 +117,27 @@ Prepare raw data again so SQLMesh starts from the same baseline.
 Mac/Linux:
 
 ```bash
-.venv/bin/python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
+.venv/bin/python \
+  chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
 .venv/bin/sqlmesh \
   -p chapter_14_sql_transformation_frameworks/sqlmesh \
   plan --auto-apply --no-prompts
-.venv/bin/python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
+.venv/bin/python \
+  chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py \
+  --label sqlmesh
 ```
 
 Windows PowerShell:
 
 ```powershell
-.\.venv\Scripts\python.exe chapter_14_sql_transformation_frameworks\scripts\prepare_raw_data.py
+.\.venv\Scripts\python.exe `
+  chapter_14_sql_transformation_frameworks\scripts\prepare_raw_data.py
 .\.venv\Scripts\sqlmesh.exe `
   -p chapter_14_sql_transformation_frameworks\sqlmesh `
   plan --auto-apply --no-prompts
-.\.venv\Scripts\python.exe chapter_14_sql_transformation_frameworks\scripts\verify_framework_counts.py --label sqlmesh
+.\.venv\Scripts\python.exe `
+  chapter_14_sql_transformation_frameworks\scripts\verify_framework_counts.py `
+  --label sqlmesh
 ```
 
 ## What to Compare
