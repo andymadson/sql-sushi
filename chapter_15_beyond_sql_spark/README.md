@@ -60,6 +60,8 @@ python -m venv .venv
 
 If `java` is not on `PATH`, the Spark build step will fail before it starts the local Spark session. Install a JDK and rerun the build.
 
+On Windows, Spark may warn that `winutils.exe` is missing. This example still runs locally without a Hadoop install because Spark computes the pair counts and Python writes the small final CSV. Treat the warning as harmless if the verifier passes.
+
 ## What the Spark Job Does
 
 1. Reads the Chapter 12 Clover, Square, and Toast CSV exports.

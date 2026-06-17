@@ -7,6 +7,7 @@ self-join: co-purchased item pairs within reconstructed baskets.
 
 from __future__ import annotations
 
+import csv
 import json
 import os
 import pathlib
@@ -130,20 +131,14 @@ def _normalize_pos_lines(spark: SparkSession):
 
 
 def _write_single_csv(data_frame, path: pathlib.Path) -> None:
-    temp_dir = path.parent / "_spark_pair_counts"
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
-    data_frame.coalesce(1).write.mode("overwrite").option("header", True).csv(
-        str(temp_dir)
-    )
-    part_files = sorted(temp_dir.glob("part-*.csv"))
-    if len(part_files) != 1:
-        raise RuntimeError(f"Expected one Spark CSV part file, found {len(part_files)}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists():
-        path.unlink()
-    shutil.move(str(part_files[0]), path)
-    shutil.rmtree(temp_dir)
+    temp_path = path.with_name(f"{path.stem}.tmp")
+    with temp_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=data_frame.columns)
+        writer.writeheader()
+        for row in data_frame.toLocalIterator():
+            writer.writerow(row.asDict())
+    temp_path.replace(path)
 
 
 def main() -> int:
