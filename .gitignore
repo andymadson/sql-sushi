@@ -38,6 +38,8 @@ pgdata/
 chapter_*/data/*.csv
 chapter_*/data/*.duckdb
 chapter_*/data/*.duckdb.wal
+chapter_*/data/*.json
+chapter_*/data/_spark_*/
 
 # Generated chapter logs
 chapter_*/logs/*.log
