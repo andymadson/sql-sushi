@@ -1,6 +1,6 @@
 """Run the Chapter 12 pipeline as a schedulable job.
 
-This is the smallest orchestration layer worth showing. CRON or Task Scheduler
+This is the smallest orchestration layer worth showing. cron or Task Scheduler
 wakes up this script. The script prepares deterministic local data, runs the
 Chapter 12 pipeline, verifies the expected counts, writes one job log, and exits
 non-zero on failure.

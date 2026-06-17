@@ -1,4 +1,4 @@
-# Example CRON entry for Chapter 13.
+# Example cron entry for Chapter 13.
 # Replace /path/to/sql-sushi with the absolute path to your checkout.
 #
 # Run every day at 02:15 local time and append job output to the Chapter 13 log.
