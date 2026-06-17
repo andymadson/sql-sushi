@@ -24,13 +24,19 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      - name: Set up Java for Spark
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt -r chapter_13_workflow_orchestration/requirements.txt -r chapter_14_sql_transformation_frameworks/requirements.txt
+          python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt -r chapter_13_workflow_orchestration/requirements.txt -r chapter_14_sql_transformation_frameworks/requirements.txt -r chapter_15_beyond_sql_spark/requirements.txt
 
       - name: Lint Python with ruff
-        run: ruff check chapter_12_scheduling_sql_pipelines_python chapter_13_workflow_orchestration chapter_14_sql_transformation_frameworks
+        run: ruff check chapter_12_scheduling_sql_pipelines_python chapter_13_workflow_orchestration chapter_14_sql_transformation_frameworks chapter_15_beyond_sql_spark
 
       - name: Parse SQL files with sqlglot (DuckDB dialect)
         run: |
@@ -76,3 +82,9 @@ jobs:
           python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
           sqlmesh -p chapter_14_sql_transformation_frameworks/sqlmesh plan --auto-apply --no-prompts
           python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
+
+      - name: Run Chapter 15 Spark basket pairs
+        run: |
+          python chapter_15_beyond_sql_spark/scripts/prepare_spark_inputs.py
+          python chapter_15_beyond_sql_spark/scripts/build_basket_pairs.py
+          python chapter_15_beyond_sql_spark/scripts/verify_basket_pairs.py

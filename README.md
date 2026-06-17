@@ -38,7 +38,7 @@ Each chapter directory is self-contained: it has its own README, pinned runtime 
 | 12 | Scheduling SQL Pipelines with Python | [`chapter_12_scheduling_sql_pipelines_python/`](chapter_12_scheduling_sql_pipelines_python/) |
 | 13 | Workflow Orchestration | [`chapter_13_workflow_orchestration/`](chapter_13_workflow_orchestration/) |
 | 14 | SQL-Based Transformation Frameworks | [`chapter_14_sql_transformation_frameworks/`](chapter_14_sql_transformation_frameworks/) |
-| 15 | Beyond SQL | _coming_ |
+| 15 | Beyond SQL | [`chapter_15_beyond_sql_spark/`](chapter_15_beyond_sql_spark/) |
 | 16 | Real-Time Data Transformation | _coming_ |
 | 17 | End-to-End Case Study | _coming_ |
 
@@ -109,6 +109,19 @@ python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.
 python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
 sqlmesh -p chapter_14_sql_transformation_frameworks/sqlmesh plan --auto-apply --no-prompts
 python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
+```
+
+## Quick Start: Chapter 15
+
+Chapter 15 uses Spark for one focused transformation that is awkward to express as plain SQL: reconstructing baskets from POS line items and counting co-purchased item pairs.
+
+Spark requires a local JDK. The CI workflow uses Java 17.
+
+```bash
+python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt -r chapter_15_beyond_sql_spark/requirements.txt
+python chapter_15_beyond_sql_spark/scripts/prepare_spark_inputs.py
+python chapter_15_beyond_sql_spark/scripts/build_basket_pairs.py
+python chapter_15_beyond_sql_spark/scripts/verify_basket_pairs.py
 ```
 
 ## Contributing
