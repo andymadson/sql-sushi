@@ -13,8 +13,8 @@ sql-sushi/
 |-- chapter_12_scheduling_sql_pipelines_python/
 |-- chapter_13_workflow_orchestration/
 |-- chapter_14_sql_transformation_frameworks/
-|-- chapter_15_beyond_sql_spark/                (coming)
-|-- chapter_16_real_time_data_transformation/   (coming)
+|-- chapter_15_beyond_sql_spark/
+|-- chapter_16_real_time_data_transformation/
 `-- chapter_17_end_to_end_sqlmesh_cron/         (coming)
 ```
 
@@ -39,7 +39,7 @@ Each chapter directory is self-contained: it has its own README, pinned runtime 
 | 13 | Workflow Orchestration | [`chapter_13_workflow_orchestration/`](chapter_13_workflow_orchestration/) |
 | 14 | SQL-Based Transformation Frameworks | [`chapter_14_sql_transformation_frameworks/`](chapter_14_sql_transformation_frameworks/) |
 | 15 | Beyond SQL | [`chapter_15_beyond_sql_spark/`](chapter_15_beyond_sql_spark/) |
-| 16 | Real-Time Data Transformation | _coming_ |
+| 16 | Real-Time Data Transformation | [`chapter_16_real_time_data_transformation/`](chapter_16_real_time_data_transformation/) |
 | 17 | End-to-End Case Study | _coming_ |
 
 ## Quick Start: Chapter 12
@@ -123,6 +123,42 @@ python chapter_15_beyond_sql_spark/scripts/prepare_spark_inputs.py
 python chapter_15_beyond_sql_spark/scripts/build_basket_pairs.py
 python chapter_15_beyond_sql_spark/scripts/verify_basket_pairs.py
 ```
+
+## Quick Start: Chapter 16
+
+Chapter 16 uses deterministic event batch files and DuckDB to show event-time watermarks, late-event capture, idempotent file processing, and 15-minute sales aggregates without requiring a streaming service.
+
+Mac/Linux:
+
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install \
+  -r requirements-dev.txt \
+  -r chapter_12_scheduling_sql_pipelines_python/requirements.txt \
+  -r chapter_16_real_time_data_transformation/requirements.txt
+.venv/bin/python chapter_16_real_time_data_transformation/scripts/prepare_event_batches.py
+.venv/bin/python chapter_16_real_time_data_transformation/scripts/run_micro_batches.py --reset
+.venv/bin/python chapter_16_real_time_data_transformation/scripts/run_micro_batches.py
+.venv/bin/python chapter_16_real_time_data_transformation/scripts/verify_real_time_outputs.py
+```
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install `
+  -r requirements-dev.txt `
+  -r chapter_12_scheduling_sql_pipelines_python\requirements.txt `
+  -r chapter_16_real_time_data_transformation\requirements.txt
+.\.venv\Scripts\python.exe chapter_16_real_time_data_transformation\scripts\prepare_event_batches.py
+.\.venv\Scripts\python.exe chapter_16_real_time_data_transformation\scripts\run_micro_batches.py --reset
+.\.venv\Scripts\python.exe chapter_16_real_time_data_transformation\scripts\run_micro_batches.py
+.\.venv\Scripts\python.exe chapter_16_real_time_data_transformation\scripts\verify_real_time_outputs.py
+```
+
+The second micro-batch run should skip the already processed batch files. That is the idempotency check.
 
 ## Contributing
 
