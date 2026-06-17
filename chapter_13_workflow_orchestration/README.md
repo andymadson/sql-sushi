@@ -80,6 +80,12 @@ PowerShell uses Task Scheduler rather than CRON. From the repo root, after the v
 
 That registers a daily 2:15 a.m. task named `SQL-Sushi Chapter 13 Pipeline`.
 
+## Where GitHub Actions Fits
+
+This repo's CI workflow already runs the Chapter 13 wrapper on push and pull request events. You could also run the same command from a manually triggered `workflow_dispatch` workflow or from a scheduled workflow for a small repo-centered job. GitHub's docs cover event-based, manual, and scheduled workflow triggers. https://docs.github.com/actions/using-workflows/events-that-trigger-workflows and https://docs.github.com/actions/managing-workflow-runs/manually-running-a-workflow
+
+Don't treat that as a replacement for Airflow or Dagster. Actions is useful for code validation, demos, and lightweight repo automation. It doesn't model data assets, dependency graphs, freshness, or operational backfills the way a data orchestrator is meant to.
+
 ## Expected Result
 
 The scheduled wrapper should end with:
