@@ -114,6 +114,8 @@ python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.
 
 The second `prepare_raw_data.py` call resets the local DuckDB state before the SQLMesh path. Do not run dbt and SQLMesh together against the same production target. Choose one operating framework for a real project. Chapter 14 also includes real orchestration examples for Airflow plus dbt, SQLMesh plus Dagster, SQLMesh plus cron, and SQLMesh plus GitHub Actions.
 
+Optional dbt state note: Orchestra Labs' [`orchestra-hq/sao-paolo`](https://github.com/orchestra-hq/sao-paolo) project publishes `dbt-orchestra`, a wrapper that runs dbt Core commands through `orc dbt ...` and uses saved run state to reduce unnecessary dbt work. It is relevant to the dbt tradeoff discussion, but it is not required for this repo. The SQL-Sushi dbt exercise stays DuckDB-first for local reproducibility, and Chapter 17 uses SQLMesh because state and environments are native to SQLMesh.
+
 ## Quick Start: Chapter 15
 
 Chapter 15 uses Spark for one focused transformation that is awkward to express as plain SQL: reconstructing baskets from POS line items and counting co-purchased item pairs.

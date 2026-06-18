@@ -49,6 +49,7 @@ logs/
 chapter_*/dbt/.user.yml
 chapter_*/dbt/logs/
 chapter_*/dbt/target/
+.orchestra/
 chapter_*/sqlmesh/.cache/
 chapter_*/sqlmesh/.sqlmesh/
 chapter_*/sqlmesh/logs/

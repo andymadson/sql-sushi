@@ -148,6 +148,7 @@ The point is not that one framework writes better SQL. The SQL is intentionally 
 The useful comparison is the operating surface:
 
 - dbt Core makes the project shape familiar: sources, refs, model folders, model tests, and `dbt run`.
+- Orchestra Labs' [`orchestra-hq/sao-paolo`](https://github.com/orchestra-hq/sao-paolo) project publishes `dbt-orchestra`, which can wrap dbt Core with state-aware run behavior. It is a relevant dbt option, not part of this required DuckDB exercise.
 - SQLMesh makes model state and environments the center of the workflow.
 - Both can build the same DuckDB tables.
 - Both rebuild `analytics.daily_menu_sales`, the Chapter 2 daily location-and-menu-item contract, before building the downstream summaries.
