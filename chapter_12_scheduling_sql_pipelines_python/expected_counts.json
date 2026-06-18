@@ -14,11 +14,12 @@
     "raw.toast_transactions": 18541,
     "staging.stg_pos_transactions": 55656,
     "analytics.fact_sales": 55656,
+    "analytics.daily_menu_sales": 5397,
     "analytics.agg_daily_sales_by_location": 180,
     "analytics.agg_top_items_30d": 30
   },
   "pipeline": {
     "latest_run_status": "success",
-    "latest_run_step_count": 8
+    "latest_run_step_count": 9
   }
 }

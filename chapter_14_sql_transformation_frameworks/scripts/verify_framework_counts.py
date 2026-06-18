@@ -24,6 +24,7 @@ REQUIRED_RELATIONS = (
     "raw.toast_transactions",
     "staging.stg_pos_transactions",
     "analytics.fact_sales",
+    "analytics.daily_menu_sales",
     "analytics.agg_daily_sales_by_location",
     "analytics.agg_top_items_30d",
 )

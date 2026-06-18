@@ -52,4 +52,6 @@ chapter_*/dbt/target/
 chapter_*/sqlmesh/.cache/
 chapter_*/sqlmesh/.sqlmesh/
 chapter_*/sqlmesh/logs/
+chapter_*/airflow/.airflow_home/
+chapter_*/dagster/.dagster/
 tmp_sqlmesh_init_check/

@@ -105,3 +105,5 @@ Airflow and Dagster solve real problems: retries, dependency graphs, backfills, 
 Chapter 13 starts with cron because SQL-Sushi's current pipeline is still one linear local job. The moment the team needs per-step retries, dependency-aware backfills, multiple environments, or a UI for operators, the tradeoff changes.
 
 Start with the scheduler that matches the pipeline you actually have.
+
+Chapter 14 shows the larger pairings: Airflow plus dbt, SQLMesh plus Dagster, SQLMesh plus cron, and SQLMesh plus GitHub Actions. Chapter 13 stops at the smaller job boundary so those comparisons have something concrete to build on.

@@ -27,6 +27,7 @@ chapter_12_scheduling_sql_pipelines_python/
     |   `-- stg_pos_transactions.sql
     `-- analytics/
         |-- fact_sales.sql
+        |-- daily_menu_sales.sql
         |-- agg_daily_sales_by_location.sql
         `-- agg_top_items_30d.sql
 ```
@@ -80,10 +81,11 @@ A clean seeded run with `seed=42` produces:
 | `raw.toast_transactions` | 18,541 |
 | `staging.stg_pos_transactions` | 55,656 |
 | `analytics.fact_sales` | 55,656 |
+| `analytics.daily_menu_sales` | 5,397 |
 | `analytics.agg_daily_sales_by_location` | 180 |
 | `analytics.agg_top_items_30d` | 30 |
 
-The verifier reads `expected_counts.json` and fails non-zero if any CSV count, DuckDB relation count, or latest pipeline run status diverges.
+`analytics.daily_menu_sales` is the Chapter 2 design-doc grain: one row per sales date, location, and standardized menu item, with location and menu metadata from the reference tables. The verifier reads `expected_counts.json` and fails non-zero if any CSV count, DuckDB relation count, or latest pipeline run status diverges.
 
 ## Validated Runtime
 

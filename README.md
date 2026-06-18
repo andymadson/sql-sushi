@@ -15,7 +15,7 @@ sql-sushi/
 |-- chapter_14_sql_transformation_frameworks/
 |-- chapter_15_beyond_sql_spark/
 |-- chapter_16_real_time_data_transformation/
-`-- chapter_17_end_to_end_sqlmesh_cron/         (coming)
+`-- chapter_17_end_to_end_sqlmesh_github_actions/ (planned)
 ```
 
 Each chapter directory is self-contained: it has its own README, pinned runtime dependencies, source code or SQL, data generation steps or documented data dependencies, verification commands, and expected outputs.
@@ -91,6 +91,7 @@ A clean seeded run with `seed=42` produces:
 | `raw.toast_transactions` | 18,541 |
 | `staging.stg_pos_transactions` | 55,656 |
 | `analytics.fact_sales` | 55,656 |
+| `analytics.daily_menu_sales` | 5,397 |
 | `analytics.agg_daily_sales_by_location` | 180 |
 | `analytics.agg_top_items_30d` | 30 |
 
@@ -98,7 +99,7 @@ A clean seeded run with `seed=42` produces:
 
 ## Quick Start: Chapter 14
 
-Chapter 14 uses the same Chapter 12 raw DuckDB data and rebuilds the transformed tables with dbt Core and SQLMesh.
+Chapter 14 uses the same Chapter 12 raw DuckDB data to demonstrate two alternative transformation frameworks: dbt Core and SQLMesh. Treat them as either/or framework choices. The repo includes both only so readers can compare how each framework rebuilds the same SQL-Sushi contract, including the Chapter 2 daily menu sales grain.
 
 ```bash
 python -m pip install -r requirements-dev.txt -r chapter_12_scheduling_sql_pipelines_python/requirements.txt -r chapter_14_sql_transformation_frameworks/requirements.txt
@@ -110,6 +111,8 @@ python chapter_14_sql_transformation_frameworks/scripts/prepare_raw_data.py
 sqlmesh -p chapter_14_sql_transformation_frameworks/sqlmesh plan --auto-apply --no-prompts
 python chapter_14_sql_transformation_frameworks/scripts/verify_framework_counts.py --label sqlmesh
 ```
+
+The second `prepare_raw_data.py` call resets the local DuckDB state before the SQLMesh path. Do not run dbt and SQLMesh together against the same production target. Choose one operating framework for a real project. Chapter 14 also includes real orchestration examples for Airflow plus dbt, SQLMesh plus Dagster, SQLMesh plus cron, and SQLMesh plus GitHub Actions.
 
 ## Quick Start: Chapter 15
 
