@@ -1,0 +1,12 @@
+gateways:
+  duckdb:
+    connection:
+      type: duckdb
+      database: chapter_17_end_to_end_sqlmesh_github_actions/data/sqlsushi_end_to_end.duckdb
+
+default_gateway: duckdb
+
+model_defaults:
+  dialect: duckdb
+  start: 2026-04-01
+  cron: '@daily'

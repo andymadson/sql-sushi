@@ -15,7 +15,7 @@ sql-sushi/
 |-- chapter_14_sql_transformation_frameworks/
 |-- chapter_15_beyond_sql_spark/
 |-- chapter_16_real_time_data_transformation/
-`-- chapter_17_end_to_end_sqlmesh_github_actions/ (planned)
+`-- chapter_17_end_to_end_sqlmesh_github_actions/
 ```
 
 Each chapter directory is self-contained: it has its own README, pinned runtime dependencies, source code or SQL, data generation steps or documented data dependencies, verification commands, and expected outputs.
@@ -40,7 +40,7 @@ Each chapter directory is self-contained: it has its own README, pinned runtime 
 | 14 | SQL-Based Transformation Frameworks | [`chapter_14_sql_transformation_frameworks/`](chapter_14_sql_transformation_frameworks/) |
 | 15 | Beyond SQL | [`chapter_15_beyond_sql_spark/`](chapter_15_beyond_sql_spark/) |
 | 16 | Real-Time Data Transformation | [`chapter_16_real_time_data_transformation/`](chapter_16_real_time_data_transformation/) |
-| 17 | End-to-End Case Study | _coming_ |
+| 17 | End-to-End Case Study | [`chapter_17_end_to_end_sqlmesh_github_actions/`](chapter_17_end_to_end_sqlmesh_github_actions/) |
 
 ## Quick Start: Chapter 12
 
@@ -164,6 +164,36 @@ python -m venv .venv
 ```
 
 The second micro-batch run should skip the already processed batch files. That is the idempotency check.
+
+## Quick Start: Chapter 17
+
+Chapter 17 runs the final SQLMesh case study from one command. It prepares the deterministic raw data, applies the SQLMesh plan, and verifies the transformed outputs. The GitHub Actions workflow in the chapter folder is a copyable example, not an active repository workflow.
+
+Mac/Linux:
+
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install \
+  -r requirements-dev.txt \
+  -r chapter_12_scheduling_sql_pipelines_python/requirements.txt \
+  -r chapter_17_end_to_end_sqlmesh_github_actions/requirements.txt
+.venv/bin/python chapter_17_end_to_end_sqlmesh_github_actions/scripts/run_pipeline.py
+.venv/bin/python chapter_17_end_to_end_sqlmesh_github_actions/scripts/validate_operating_examples.py
+```
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install `
+  -r requirements-dev.txt `
+  -r chapter_12_scheduling_sql_pipelines_python\requirements.txt `
+  -r chapter_17_end_to_end_sqlmesh_github_actions\requirements.txt
+.\.venv\Scripts\python.exe chapter_17_end_to_end_sqlmesh_github_actions\scripts\run_pipeline.py
+.\.venv\Scripts\python.exe chapter_17_end_to_end_sqlmesh_github_actions\scripts\validate_operating_examples.py
+```
 
 ## Contributing
 
