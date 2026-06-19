@@ -33,7 +33,7 @@ def main() -> int:
         "github_actions": [
             "workflow_dispatch:",
             "schedule:",
-            "actions/checkout@v6",
+            "actions/checkout@v7",
             "actions/setup-python@v6",
             "chapter_17_end_to_end_sqlmesh_github_actions/scripts/run_pipeline.py",
         ],
