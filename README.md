@@ -20,6 +20,18 @@ sql-sushi/
 
 Each chapter directory is self-contained: it has its own README, pinned runtime dependencies, source code or SQL, data generation steps or documented data dependencies, verification commands, and expected outputs.
 
+## Windows Checkout Path Note
+
+On Windows, clone this repo into a short path such as `C:\src\sql-sushi` or `C:\tmp\sql-sushi`. Avoid deep synced folders such as nested OneDrive document paths. Some chapter folders intentionally use descriptive names, and a deep checkout path can exceed Windows path limits before the examples run.
+
+If Git reports `Filename too long` during clone or checkout, set Git for Windows long-path support before cloning again:
+
+```powershell
+git config --global core.longpaths true
+```
+
+For machine-wide Windows long-path behavior, Windows also has a `LongPathsEnabled` registry/group-policy setting. That setting is separate from Git's `core.longpaths` option and only helps applications that opt in to long paths.
+
 ## Chapters
 
 | # | Title | Code |
